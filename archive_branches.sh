@@ -32,8 +32,7 @@ echo "$branch_amount branches to examinate:"
 echo "$branches"
 
 while read branch; do
-	BRANCH=${branch##*/}
-
+	BRANCH=$(echo $branch | sed 's/origin\///')
 	response_branch="DECIDE"
 	while ! [[ $response_branch =~ ^([yY])$|^([nN])$ ]];
 	do
