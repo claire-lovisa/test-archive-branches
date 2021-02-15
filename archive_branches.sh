@@ -26,47 +26,49 @@ done
 
 
 branches=$(git branch -r --merged | grep -v HEAD | grep -v master | grep -v development)
-branch_amount=$(echo "$branches" | wc -l)
+branch_amount=$(echo "$branches" | sed '/^[[:space:]]*$/d' | wc -l) # trim empty lines before counting
 
 echo "$branch_amount branches to examinate:"
 echo "$branches"
 
-while read branch; do
-	BRANCH=$(echo $branch | sed 's/origin\///')
-	response_branch="DECIDE"
-	while ! [[ $response_branch =~ ^([yY])$|^([nN])$ ]];
-	do
-		read -p "Do you want to archive branch $BRANCH ? [Y|N] " response_branch </dev/tty
-		if [[ $response_branch =~ ^([yY])$ ]]
-		then
-			echo "Ok, proceeding"
-			echo "======= Checking out to $BRANCH ======="
+if [[ $branch_amount != 0 ]]
+then
+	while read branch; do
+		BRANCH=$(echo $branch | sed 's/origin\///')
+		response_branch="DECIDE"
+		while ! [[ $response_branch =~ ^([yY])$|^([nN])$ ]];
+		do
+			read -p "Do you want to archive branch $BRANCH ? [Y|N] " response_branch </dev/tty
+			if [[ $response_branch =~ ^([yY])$ ]]
+			then
+				echo "Ok, proceeding"
+				echo "======= Checking out to $BRANCH ======="
 
-			git checkout -b $BRANCH
+				git checkout -b $BRANCH
 
-			echo "======= pulling branch ======="
+				echo "======= pulling branch ======="
 
-			git pull origin $BRANCH
+				git pull origin $BRANCH
 
-			echo "======= Tagging branch to archive ======="
+				echo "======= Tagging branch to archive ======="
 
-			git tag archive/$BRANCH $BRANCH
+				git tag archive/$BRANCH $BRANCH
 
-			echo "======= Removing branch $BRANCH ======="
+				echo "======= Removing branch $BRANCH ======="
 
-			git checkout $target_branch
-			git branch -d $BRANCH
-			git push origin :$BRANCH
-		elif [[ $response_branch =~ ^([nN])$ ]]
-    	then
-    		echo "Skipping branch $BRANCH ..."
-	    fi
-	done
-	
-done <<< "$branches"
+				git checkout $target_branch
+				git branch -d $BRANCH
+				git push origin :$BRANCH
+			elif [[ $response_branch =~ ^([nN])$ ]]
+				then
+					echo "Skipping branch $BRANCH ..."
+				fi
+		done
+	done <<< "$branches"
 
-echo "======= Pushing tags ======="
-git push --tags
+	echo "======= Pushing tags ======="
+	git push --tags
+
+fi
 
 echo "END OF SCRIPT"
-
