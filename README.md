@@ -8,11 +8,13 @@ The idea behind this is to help us clean out a lot of repositories having many b
 
 ### Archive branches
 
-```
+```bash
 /bin/bash archive_branches.sh
 ```
 
-## TODO
+### Restore a branch
 
-Check if restoring a branch works and add it to the readme
+```bash
+git checkout -b branch-name archive/branch-name
+```
 
