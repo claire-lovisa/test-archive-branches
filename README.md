@@ -17,4 +17,3 @@ The idea behind this is to help us clean out a lot of repositories having many b
 ```bash
 git checkout -b branch-name archive/branch-name
 ```
-
